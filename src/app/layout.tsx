@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { PageContainer } from "@/components/PageContainer";
@@ -12,6 +12,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "OQSI - Outie Query System Interface",
   description: "Describe your Innie to learn about your Outie",
+  metadataBase: new URL('https://YourOutie.is'),
   icons: {
     icon: [{
       url: '/favicon.png',
@@ -25,11 +26,6 @@ export const metadata: Metadata = {
   applicationName: "OQSI",
   authors: [{ name: "" }],
   keywords: ["Severance", "Innie", "Outie", "Your Outie is", "Lumon"],
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-  },
   robots: {
     index: true,
     follow: true,
@@ -55,6 +51,12 @@ export const metadata: Metadata = {
     description: "Describe your Innie to learn about your Outie",
     images: ["/OQSI-FeaturedImage.png"],
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
   themeColor: "#000000",
 };
 
