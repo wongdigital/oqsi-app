@@ -2,6 +2,13 @@ import React, { useRef, useEffect, KeyboardEvent, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 
+const toKebabCase = (str: string): string => {
+  return str
+    .toLowerCase()
+    .replace(/\s+/g, '-')     // Replace spaces with hyphens
+    .replace(/[^a-z0-9-]/g, ''); // Remove non-alphanumeric characters except hyphens
+};
+
 interface ContentInputFieldsProps {
   question: string;
   onSubmit: (values: [string, string]) => void;
@@ -100,7 +107,7 @@ export function ContentInputFields({
             </div>
             <div className="flex-1">
               <Input
-                id="first-field"
+                id={toKebabCase(firstFieldLabel)}
                 ref={firstInputRef}
                 type="text"
                 value={firstValue}
@@ -134,7 +141,7 @@ export function ContentInputFields({
             </div>
             <div className="flex-1">
               <Input
-                id="second-field"
+                id={toKebabCase(secondFieldLabel)}
                 ref={secondInputRef}
                 type="text"
                 value={secondValue}
@@ -156,7 +163,7 @@ export function ContentInputFields({
           
           {(errors[0] || errors[1]) && (
             <div className="text-red-500 text-sm mt-1">
-              Please fill out all fields. That’s 10 points off.
+              Please fill out all fields. That's 10 points off.
             </div>
           )}
         </div>
