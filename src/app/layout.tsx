@@ -3,6 +3,20 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { PageContainer } from "@/components/PageContainer";
 import { ClientMusicPlayer } from "@/components/MusicPlayer/ClientMusicPlayer";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
+
+// Declare global window gtag
+declare global {
+  interface Window {
+    gtag: (
+      command: "config" | "event" | "set",
+      targetId: string,
+      config?: Record<string, any>
+    ) => void;
+  }
+}
+
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 const inter = Inter({
   subsets: ["latin"],
@@ -67,6 +81,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <GoogleAnalytics />
+      </head>
       <body
         className={`${inter.variable} antialiased`}
       >
