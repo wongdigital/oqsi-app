@@ -1,0 +1,82 @@
+{
+    "content": {
+        "slides": [
+            {
+                "order": 1,
+                "title": "What is your full name?",
+                "type": "inputFields",
+                "options": ["First Name", "Last Name"]
+            },
+            {
+                "order": 2,
+                "title": "What is your innie’s primary work skill?",
+                "type": "multipleChoice",
+                "options": [
+                    "Data analysis",
+                    "Organization",
+                    "Creative thinking",
+                    "Communication",
+                    "Problem-solving",
+                    "Attention to detail",
+                    "Multitasking"
+                ]
+            },
+            {
+                "order": 3,
+                "title": "What is your innie’s personality like?",
+                "type": "multipleChoice",
+                "options": [
+                    "Quiet and focused",
+                    "Sociable and chatty",
+                    "Rule-following",
+                    "Innovative",
+                    "Competitive",
+                    "Anxious",
+                    "Confident"
+                ]
+            },
+            {
+                "order": 4,
+                "title": "What is your innie’s office habbit?",
+                "type": "multipleChoice",
+                "options": [
+                    "Always on time",
+                    "Decorates workspace",
+                    "Takes meticulous notes",
+                    "Enforces office policies",
+                    "Never takes breaks",
+                    "Fidgets constantly",
+                    "Always volunteers"
+                ]
+            },
+            {
+                "order": 5,
+                "title": "What is your innie’s worst fear?",
+                "type": "multipleChoice",
+                "options": [
+                    "Making mistakes",
+                    "Not being liked",
+                    "Authority figures",
+                    "New procedures",
+                    "Technology failures",
+                    "Tight deadlines",
+                    "Office politics"
+                ]
+            },
+            {
+                "order": 6,
+                "title": "What is your innie’s favorite break room activity?",
+                "type": "multipleChoice",
+                "options": [
+                    "Coffee drinking",
+                    "Contemplating life",
+                    "Small talk",
+                    "Stretching",
+                    "Snacking",
+                    "Doodling"
+                ]
+            }
+        ]
+    }
+}
+  
