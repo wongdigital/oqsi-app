@@ -13,11 +13,17 @@ export const metadata: Metadata = {
   title: "OQSI - Outie Query System Interface",
   description: "Describe your Innie to learn about your Outie",
   icons: {
-    icon: "/favicon.png",
-    apple: "/favicon.png",
+    icon: [{
+      url: '/favicon.png',
+      type: 'image/png',
+    }],
+    apple: [{
+      url: '/favicon.png',
+      type: 'image/png',
+    }],
   },
   applicationName: "OQSI",
-  authors: [{ name: "OQSI Team" }],
+  authors: [{ name: "" }],
   keywords: ["Severance", "Innie", "Outie", "Your Outie is", "Lumon"],
   viewport: {
     width: "device-width",
@@ -36,10 +42,10 @@ export const metadata: Metadata = {
     description: "Describe your Innie to learn about your Outie",
     images: [
       {
-        url: "/favicon.png",
+        url: "/OQSI-FeaturedImage.png",
         width: 800,
         height: 600,
-        alt: "OQSI Logo",
+        alt: "OQSI - Outie Query System Interface",
       },
     ],
   },
@@ -47,7 +53,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "OQSI - Outie Query System Interface",
     description: "Describe your Innie to learn about your Outie",
-    images: ["/favicon.png"],
+    images: ["/OQSI-FeaturedImage.png"],
   },
   themeColor: "#000000",
 };
