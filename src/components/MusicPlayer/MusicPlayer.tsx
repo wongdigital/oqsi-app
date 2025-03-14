@@ -217,7 +217,7 @@ export const MusicPlayer: React.FC = () => {
         // Medium screens and up: centered with fixed width and full borders
         "md:w-auto md:left-1/2 md:-translate-x-1/2 md:bottom-12 md:border md:border-black"
       )}>
-        Loading player...
+        Getting the maracas...
       </div>
     );
   }

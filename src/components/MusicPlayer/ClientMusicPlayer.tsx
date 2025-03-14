@@ -10,7 +10,7 @@ const DynamicMusicPlayer = dynamic(
     ssr: false,
     loading: () => (
       <div className="fixed bottom-8 right-8 bg-black/80 backdrop-blur-md text-white p-3 rounded-full shadow-lg z-[10000]">
-        Loading player...
+        Getting the maracas...
       </div>
     )
   }
@@ -20,7 +20,7 @@ export function ClientMusicPlayer() {
   return (
     <Suspense fallback={
       <div className="fixed bottom-8 right-8 bg-black/80 backdrop-blur-md text-white p-3 rounded-full shadow-lg z-[10000]">
-        Loading player...
+        Getting the maracas...
       </div>
     }>
       <DynamicMusicPlayer />

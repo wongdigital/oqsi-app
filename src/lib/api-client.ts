@@ -18,6 +18,6 @@ export async function generateWellnessFacts(request: InnieRequest): Promise<Well
         return response.json();
     } catch (error) {
         console.error('API request failed:', error);
-        throw new Error('Failed to fetch wellness facts. Please check your internet connection and try again.');
+        throw new Error('The query failed. The Board may have hung up. Please check your internet connection and try again.');
     }
 } 

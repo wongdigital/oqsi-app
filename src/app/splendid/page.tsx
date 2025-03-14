@@ -120,7 +120,7 @@ export default function SplendidResults() {
       <ContentPageTemplate>
         <ContentTextOnly
           key="error-state"
-          title="Oops!"
+          title="We apologize for the error."
           text={[pageState.error]}
           onComplete={fetchFacts}
           buttonText="Try Again"
