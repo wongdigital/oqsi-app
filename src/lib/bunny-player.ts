@@ -71,7 +71,7 @@ class BunnyPlayerService {
       this.onEndedCallbacks.forEach(callback => callback());
     });
 
-    this.audioElement.addEventListener('error', (e) => {
+    this.audioElement.addEventListener('error', () => {
       const error = new Error('Audio playback error');
       this.onErrorCallbacks.forEach(callback => callback(error));
       this.hidePlayer();
@@ -167,7 +167,7 @@ class BunnyPlayerService {
         resolve();
       };
 
-      const errorHandler = (event: any, data: any) => {
+      const errorHandler = () => {
         this.hls?.off(Hls.Events.MANIFEST_LOADED, loadHandler);
         this.hls?.off(Hls.Events.ERROR, errorHandler);
         reject(new Error('Failed to load track'));

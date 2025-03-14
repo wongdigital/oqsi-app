@@ -1,15 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { ContentTextOnly } from '@/components/ContentTextOnly';
-import { Button } from '@/components/ui/button';
 import { ContentPageTemplate } from '@/components/ContentPageTemplate';
-import { SlideTransition } from '@/components/SlideTransition';
-import { InnieSelections, WellnessFactResponse, createNarrativeFromSelections } from '@/lib/api-types';
+import { InnieSelections, createNarrativeFromSelections } from '@/lib/api-types';
 import { generateWellnessFacts } from '@/lib/api-client';
 import { useUserStore } from '@/lib/store';
 import { useRouter } from 'next/navigation';
-import { motion } from 'motion/react';
 import { generateWellnessPNG } from '@/lib/canvas-utils';
 
 export default function SplendidResults() {
@@ -33,13 +30,13 @@ export default function SplendidResults() {
   }, [firstName, lastName, router]);
 
   // Mock selections (in a real app, these would come from previous page state)
-  const mockSelections: InnieSelections = {
+  const mockSelections = useMemo<InnieSelections>(() => ({
     primary_work_skill: "Data analysis",
     work_personality: "Focused",
     office_habit: "Takes meticulous notes",
     worst_fear: "Making mistakes",
     break_room_activity: "Reading quietly"
-  };
+  }), []);
 
   // Function to fetch facts
   const fetchFacts = useCallback(async () => {
@@ -65,7 +62,7 @@ export default function SplendidResults() {
         error: null,
         facts: response.facts
       });
-    } catch (err) {
+    } catch {
       setPageState(prev => ({
         ...prev,
         isLoading: false,
@@ -73,7 +70,7 @@ export default function SplendidResults() {
         error: 'Unable to retrieve your wellness facts at this time. Please check your internet connection and try again.'
       }));
     }
-  }, []);
+  }, [mockSelections]);
 
   // Modify the useEffect to use the ref
   useEffect(() => {

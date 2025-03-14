@@ -3,7 +3,6 @@ import { twMerge } from "tailwind-merge"
 import { ChatOpenAI } from "@langchain/openai";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { StructuredOutputParser } from "@langchain/core/output_parsers";
-import { RunnableSequence } from "@langchain/core/runnables";
 import { z } from "zod";
 import { FactCategory } from "@/types/api";
 import { FALLBACK_FACTS } from "./constants";

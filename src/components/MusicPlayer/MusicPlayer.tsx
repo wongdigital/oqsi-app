@@ -43,14 +43,14 @@ async function loadTracksFromBunny(): Promise<Track[]> {
     const data = await response.json();
     
     // Transform Bunny videos into tracks using HLS playlist URLs
-    const tracks: Track[] = data.items.map((video: any) => ({
+    const tracks: Track[] = data.items.map((video: { guid: string; title: string }) => ({
       id: video.guid,
       title: video.title,
       url: `https://${pullZone}.b-cdn.net/${video.guid}/playlist.m3u8`,
     }));
 
     return tracks;
-  } catch (error) {
+  } catch {
     // Fallback to demo tracks if Bunny API fails
     return DEMO_TRACKS;
   }
@@ -71,7 +71,6 @@ export const MusicPlayer: React.FC = () => {
   
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [needsUserInteraction, setNeedsUserInteraction] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
   const initializationAttempted = useRef(false);
@@ -82,7 +81,8 @@ export const MusicPlayer: React.FC = () => {
   const handleUserInteraction = async () => {
     try {
       // Create and resume audio context
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      type WebAudioContext = typeof window.AudioContext;
+      const AudioContext: WebAudioContext = window.AudioContext || (window as { webkitAudioContext?: WebAudioContext }).webkitAudioContext || null;
       if (AudioContext) {
         const audioContext = new AudioContext();
         if (audioContext.state === 'suspended') {
@@ -96,7 +96,7 @@ export const MusicPlayer: React.FC = () => {
       setNeedsUserInteraction(false);
       await bunnyPlayer.play();
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to start playback');
+      console.error('Failed to start playback:', error);
     }
   };
 
@@ -110,7 +110,6 @@ export const MusicPlayer: React.FC = () => {
 
       try {
         setIsLoading(true);
-        setError(null);
         
         // Initialize the player
         await bunnyPlayer.initialize();
@@ -126,13 +125,10 @@ export const MusicPlayer: React.FC = () => {
           if (mountedRef.current) pause();
         });
 
-        bunnyPlayer.onError((error) => {
+        bunnyPlayer.onError((error: Error) => {
           if (mountedRef.current) {
             if (error.message.includes("user didn't interact with the document first")) {
               setNeedsUserInteraction(true);
-              setError(null);
-            } else {
-              setError(error.message);
             }
           }
         });
@@ -154,9 +150,8 @@ export const MusicPlayer: React.FC = () => {
           setIsInitialized(true);
           setIsLoading(false);
         }
-      } catch (error) {
+      } catch {
         if (mountedRef.current) {
-          setError(error instanceof Error ? error.message : 'Failed to initialize player');
           setIsLoading(false);
         }
       }
@@ -168,14 +163,13 @@ export const MusicPlayer: React.FC = () => {
     return () => {
       mountedRef.current = false;
     };
-  }, []);
+  }, [play, pause, setTracks]);
   
   // Handle track changes
   useEffect(() => {
     if (isInitialized && tracks.length > 0) {
       const loadNewTrack = async () => {
         try {
-          setError(null);
           await bunnyPlayer.loadTrack(tracks[currentTrackIndex]);
           
           // Always try to play the new track if we're in a playing state
@@ -183,7 +177,7 @@ export const MusicPlayer: React.FC = () => {
             await bunnyPlayer.play();
           }
         } catch (error) {
-          setError(error instanceof Error ? error.message : 'Failed to load track');
+          console.error('Failed to load track:', error);
         }
       };
       loadNewTrack();
@@ -205,7 +199,7 @@ export const MusicPlayer: React.FC = () => {
         bunnyPlayer.pause();
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to change play state');
+      console.error('Failed to change play state:', error);
     }
   }, [isPlaying, isInitialized, needsUserInteraction]);
   
@@ -240,13 +234,6 @@ export const MusicPlayer: React.FC = () => {
       )}
     >
       <div className="flex items-center space-x-6">
-        {/* Error indicator */}
-        {error && !needsUserInteraction && (
-          <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-3 py-1 rounded-sm text-sm flex items-center space-x-2">
-            <span>{error}</span>
-          </div>
-        )}
-        
         {/* User interaction required message */}
         {needsUserInteraction && (
           <div 

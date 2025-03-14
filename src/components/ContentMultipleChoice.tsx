@@ -35,7 +35,7 @@ export function ContentMultipleChoice({
                 : 'border-gray-400'
             }`}
             onClick={() => onSelect(option)}
-            aria-selected={selectedOption?.id === option.id}
+            aria-pressed={selectedOption?.id === option.id}
           >
             <div className={`flex items-center justify-center min-h-full w-14 font-medium border-r text-lg ${
               selectedOption?.id === option.id 

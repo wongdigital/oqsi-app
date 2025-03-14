@@ -8,7 +8,6 @@ import { ContentTextOnly } from "@/components/ContentTextOnly";
 import { SlideTransition } from "@/components/SlideTransition";
 import contentData from "@/content.json";
 import { useRouter } from "next/navigation";
-import { motion } from 'motion/react';
 import { useUserStore } from '@/lib/store';
 
 // Define types for our content structure
@@ -175,6 +174,25 @@ export default function ObservingPage() {
       window.removeEventListener("keydown", handleKeyPress);
     };
   }, [currentSlide, handleMultipleChoiceSelect]);
+  
+  // Add keyboard navigation
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === "ArrowRight" || event.key === "Enter") {
+        goToNextSlide();
+      } else if (event.key === "ArrowLeft") {
+        goToPrevSlide();
+      }
+    };
+
+    // Add event listener
+    window.addEventListener("keydown", handleKeyPress);
+
+    // Clean up
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [goToNextSlide, goToPrevSlide]);
   
   // Render the appropriate component based on slide type
   const renderSlide = () => {

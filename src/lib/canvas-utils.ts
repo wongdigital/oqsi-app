@@ -50,7 +50,7 @@ const loadAndDrawLogo = async (ctx: CanvasRenderingContext2D, x: number, y: numb
 };
 
 // Calculate required canvas height based on content
-const calculateCanvasHeight = (content: WellnessContent, config: CanvasConfig): number => {
+export const calculateCanvasHeight = (content: WellnessContent, config: CanvasConfig): number => {
   const headerHeight = 240 * config.scale; // Increased space for header
   const greetingHeight = config.lineHeight;
   const factsHeight = content.facts.length * config.lineHeight;
