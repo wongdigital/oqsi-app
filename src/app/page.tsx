@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="h-full relative">
+    <div className="h-full relative sm:flex sm:flex-col">
       <div className="pb-6 relative">
         <Image 
           src="/globe-logo.svg" 
