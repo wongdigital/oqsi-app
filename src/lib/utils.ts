@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { ChatOpenAI } from "@langchain/openai";
+// import { AzureChatOpenAI } from "@langchain/openai";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { StructuredOutputParser } from "@langchain/core/output_parsers";
 import { z } from "zod";
@@ -100,20 +101,23 @@ IMPORTANT: Your fact MUST be completely different from any previously generated 
 ]);
 
 // Azure OpenAI Configuration
-// const model = new ChatOpenAI({
-//   azureOpenAIApiKey: process.env.AZURE_OPENAI_API_KEY,
-//   azureOpenAIApiVersion: process.env.AZURE_OPENAI_API_VERSION,
-//   azureOpenAIApiDeploymentName: process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME,
-//   azureOpenAIApiInstanceName: process.env.AZURE_OPENAI_API_INSTANCE_NAME,
-//   temperature: Number(process.env.AZURE_OPENAI_TEMPERATURE) || 0.8,
+// const model = new AzureChatOpenAI({
+//   azureOpenAIApiKey: process.env.NEXT_PUBLIC_AZURE_OPENAI_API_KEY,
+//   azureOpenAIApiInstanceName: process.env.NEXT_PUBLIC_AZURE_OPENAI_API_INSTANCE_NAME,
+//   azureOpenAIApiDeploymentName: process.env.NEXT_PUBLIC_AZURE_OPENAI_API_DEPLOYMENT_NAME,
+//   azureOpenAIApiVersion: process.env.NEXT_PUBLIC_AZURE_OPENAI_API_VERSION || "2024-08-01-preview",
+//   modelName: process.env.NEXT_PUBLIC_AZURE_OPENAI_MODEL || "gpt-4o-mini",
+//   temperature: Number(process.env.NEXT_PUBLIC_AZURE_OPENAI_TEMPERATURE) || 0.8,
 //   modelKwargs: {
 //     seed: generateRandomSeed(),
 //   }
 // });
 
+// OpenAI Configuration
 const model = new ChatOpenAI({
-  modelName: process.env.OPENAI_MODEL || "gpt-4-turbo-preview",
-  temperature: Number(process.env.OPENAI_TEMPERATURE) || 0.8,
+  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+  modelName: process.env.NEXT_PUBLIC_OPENAI_MODEL || "gpt-4o-mini",
+  temperature: Number(process.env.NEXT_PUBLIC_OPENAI_TEMPERATURE) || 0.8,
   modelKwargs: {
     seed: generateRandomSeed(),
   }
