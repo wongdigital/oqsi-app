@@ -132,12 +132,18 @@ export function ContentTextOnly({
         {title && (
           <motion.h2
             key="title"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0.4 }}
+            animate={{ 
+              opacity: text.length === 0 && animationConfig.enabled ? [0.4, 1, 0.4] : 1 
+            }}
             exit={{ opacity: 0 }}
             transition={{
-              duration: animationConfig.duration / 1000,
-              ease: "easeOut"
+              opacity: {
+                duration: text.length === 0 ? 2 : animationConfig.duration / 1000,
+                ease: "easeInOut",
+                repeat: text.length === 0 ? Number.POSITIVE_INFINITY : 0,
+                repeatType: "reverse"
+              }
             }}
             className="text-2xl font-bold tracking-tight mb-8"
           >

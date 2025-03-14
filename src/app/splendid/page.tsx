@@ -142,7 +142,7 @@ export default function SplendidResults() {
           key="loading-state"
           title="Consulting Ms. Casey…"
           animationConfig={{
-            enabled: false,
+            enabled: true,
             duration: 1000,
             pause: 1000
           }}
