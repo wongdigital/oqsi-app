@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <>
+    <div className="h-full relative">
       <div className="pb-6 relative">
         <Image 
           src="/globe-logo.svg" 
@@ -26,12 +26,15 @@ export default function Home() {
           ))}
         </div>
       </div>
-      <div className="mt-[20vh] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+      
+      <div className="sm:flex-1" />
+      
+      <div className="fixed sm:static bottom-[160px] sm:bottom-auto left-6 right-6 sm:left-auto sm:right-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
         <span className="text-lg sm:text-xl font-normal tracking-tighter text-black text-pretty">Describe your Innie to learn about your Outie.</span>
         <Link href="/observing" className="w-full sm:w-auto">
           <Button size="lg" className="w-full sm:w-auto">Get Started</Button>
         </Link>
       </div>
-    </>
+    </div>
   );
 }
