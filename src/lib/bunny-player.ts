@@ -100,12 +100,10 @@ class BunnyPlayerService {
     if (typeof window === 'undefined') return;
     
     if (this.isInitialized) {
-      console.log('Player already initialized');
       return;
     }
 
     if (this.isDisposed) {
-      console.log('Player was disposed, recreating...');
       this.isDisposed = false;
       this.isInitialized = false;
       this.initializationPromise = null;
@@ -114,14 +112,11 @@ class BunnyPlayerService {
     if (this.initializationPromise) {
       return this.initializationPromise;
     }
-
-    console.log('Initializing player...');
     
     this.initializationPromise = (async () => {
       try {
         this.createPlayerElement();
         this.isInitialized = true;
-        console.log('Player initialization complete');
       } catch (error) {
         console.error('Failed to initialize player:', error);
         this.isInitialized = false;

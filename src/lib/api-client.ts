@@ -1,7 +1,6 @@
 import { InnieRequest, WellnessFactResponse } from './api-types';
 
 export async function generateWellnessFacts(request: InnieRequest): Promise<WellnessFactResponse> {
-    console.log('API call made at:', new Date().toISOString());
     try {
         const response = await fetch('/api/generate-facts', {
             method: 'POST',
