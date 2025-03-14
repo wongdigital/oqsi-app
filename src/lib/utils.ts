@@ -2,7 +2,9 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { ChatOpenAI } from "@langchain/openai";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { BaseMessage } from "@langchain/core/messages";
+import { StructuredOutputParser } from "@langchain/core/output_parsers";
+import { RunnableSequence } from "@langchain/core/runnables";
+import { z } from "zod";
 import { FactCategory } from "@/types/api";
 import { FALLBACK_FACTS } from "./constants";
 
@@ -34,22 +36,43 @@ export function calculateSimilarity(fact1: string, fact2: string): number {
   return intersection.size / union.size;
 }
 
-export const promptTemplate = ChatPromptTemplate.fromTemplate(
-  `You are an award-winning smart TV comedy writer. Write for the character Ms. Casey from the TV show Severance. Generate a wellness fact about someone's "Outie" (outside work self) that contrasts with their "innie" (work self).
+const outputParser = StructuredOutputParser.fromZodSchema(
+  z.object({
+    fact: z.string().startsWith("Your Outie"),
+    category: z.enum([
+      "moral_virtues",
+      "social_interactions",
+      "practical_skills",
+      "aesthetic_appreciation",
+      "physical_abilities",
+      "cultural_knowledge",
+      "quirky_habits",
+      "social_standing",
+      "emotional_traits",
+      "etiquette_behaviors",
+      "unusual_talents",
+      "possessions",
+      "animal_relations",
+      "achievements",
+      "future_predictions"
+    ])
+  })
+);
 
-The fact should follow this format: "Your Outie [fact about outside life]."
+const formatInstructions = outputParser.getFormatInstructions();
 
-The innie (work self) is described as, or has these traits:
-{innie_traits}
+const prompt = ChatPromptTemplate.fromMessages([
+  ["system", "You are an award-winning smart TV comedy writer. Write for the character Ms. Casey from the TV show Severance. Generate a wellness fact about someone's \"Outie\" (outside work self) that contrasts with their \"innie\" (work self)."],
+  ["human", `Generate a wellness fact about an Outie based on these Innie traits: {innieTraits}
 
-The wellness fact should:
+The fact should:
 1. Create an interesting contrast with their work traits
 2. Be oddly specific
 3. Sound slightly absurd yet plausible
 4. Have the same clinical, corporate tone used in Severance
 5. Be a single sentence starting with "Your Outie"
 6. Keep it to about 15 words or less
-7. Focus on the category: {fact_category}
+7. Focus on the category: {factCategory}
 
 Note on tone: The wellness facts should have a clinical, corporate delivery but describe something oddly specific or slightly absurd about the Outie's life outside work. The contrast between the formal delivery and the quirky content creates the distinctive Severance humor.
 
@@ -63,26 +86,27 @@ Example wellness facts from the show:
 - "Your Outie is the second tallest of their friend group."
 - "Your Outie listens to music while shaving, but not while showering."
 - "Your Outie prefers two scoops of ice cream in a serving, but they must be the same flavor."
-- "Your Outie has been mistaken for a celebrity who is widely considered handsome."
-- "Your Outie understands the difference between an insect and an arachnid."
-- "Your Outie is familiar with the myth of Hercules and derives great meaning from it."
-- "Your Outie has survived multiple earthquakes and will survive more."
-- "Your Outie does not make adults with visible orthodontia feel unwelcome or judged."
-- "Your Outie likes the sound of radar."
 
 Example contrasts between innie traits and Outie facts:
 - Innie: "Detail-oriented" → "Your Outie alphabetizes their spice rack but never cooks."
 - Innie: "Reserved in meetings" → "Your Outie performs amateur stand-up comedy every third Thursday."
 - Innie: "Rule-follower" → "Your Outie has a collection of parking tickets they're oddly proud of."
 
-Previously generated facts for this person:
-{previous_facts}
+Previously generated facts:
+{previousFacts}
 
 IMPORTANT: Your fact MUST be completely different from any previously generated facts. Do not repeat themes, activities, or concepts.
 
-Return only the wellness fact as a JSON object with keys "fact" and "category", like this:
-{"fact": "Your Outie [fact about outside life].", "category": "[one of: moral_virtues, social_interactions, practical_skills, aesthetic_appreciation, physical_abilities, cultural_knowledge, quirky_habits, social_standing, emotional_traits, etiquette_behaviors, unusual_talents, possessions, animal_relations, achievements, future_predictions]"}`
-);
+{format_instructions}`],
+]);
+
+const model = new ChatOpenAI({
+  modelName: "gpt-4-turbo-preview",
+  temperature: 0.8,
+  modelKwargs: {
+    seed: generateRandomSeed(),
+  }
+});
 
 export async function generateSingleFact(
   innieTraits: string,
@@ -90,34 +114,19 @@ export async function generateSingleFact(
   previousFacts: string[]
 ): Promise<{ fact: string; category: string }> {
   try {
-    const model = new ChatOpenAI({
-      modelName: "gpt-4-turbo-preview",
-      temperature: 0.8,
-      openAIApiKey: process.env.OPENAI_API_KEY,
-      modelKwargs: { seed: generateRandomSeed() }
+    const chain = prompt.pipe(model).pipe(outputParser);
+    
+    const result = await chain.invoke({
+      innieTraits,
+      factCategory,
+      previousFacts: previousFacts.length > 0 ? previousFacts.join("\n") : "None yet",
+      format_instructions: formatInstructions,
     });
 
-    const prompt = await promptTemplate.formatMessages({
-      innie_traits: innieTraits,
-      fact_category: factCategory,
-      previous_facts: previousFacts.length > 0 ? previousFacts.join("\n") : "None yet"
-    });
-
-    const response = await model.invoke(prompt);
-    const content = getMessageContent(response);
-
-    try {
-      const factObj = JSON.parse(content);
-      return {
-        fact: factObj.fact || content,
-        category: factObj.category || factCategory
-      };
-    } catch {
-      return {
-        fact: content.trim().replace(/^"|"$/g, ""),
-        category: factCategory
-      };
-    }
+    return {
+      fact: result.fact,
+      category: result.category
+    };
   } catch (error) {
     console.error("Error generating fact:", error);
     return {
@@ -125,31 +134,4 @@ export async function generateSingleFact(
       category: "fallback"
     };
   }
-}
-
-function getMessageContent(message: BaseMessage): string {
-  const content = message.content;
-  if (typeof content === 'string') {
-    return content;
-  }
-  if (Array.isArray(content)) {
-    return content.map(item => {
-      if (typeof item === 'string') {
-        return item;
-      }
-      // Handle different types of message content
-      if ('type' in item) {
-        switch (item.type) {
-          case 'text':
-            return item.text;
-          case 'image_url':
-            return ''; // Skip image URLs in our text-only context
-          default:
-            return '';
-        }
-      }
-      return '';
-    }).join(' ').trim();
-  }
-  return String(content);
 }

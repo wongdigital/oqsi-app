@@ -9,7 +9,7 @@ import { InnieSelections, WellnessFactResponse, createNarrativeFromSelections } 
 import { generateWellnessFacts } from '@/lib/api-client';
 import { useUserStore } from '@/lib/store';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { generateWellnessPNG } from '@/lib/canvas-utils';
 
 export default function SplendidResults() {
