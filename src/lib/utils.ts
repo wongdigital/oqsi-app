@@ -99,9 +99,21 @@ IMPORTANT: Your fact MUST be completely different from any previously generated 
 {format_instructions}`],
 ]);
 
+// Azure OpenAI Configuration
+// const model = new ChatOpenAI({
+//   azureOpenAIApiKey: process.env.AZURE_OPENAI_API_KEY,
+//   azureOpenAIApiVersion: process.env.AZURE_OPENAI_API_VERSION,
+//   azureOpenAIApiDeploymentName: process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME,
+//   azureOpenAIApiInstanceName: process.env.AZURE_OPENAI_API_INSTANCE_NAME,
+//   temperature: Number(process.env.AZURE_OPENAI_TEMPERATURE) || 0.8,
+//   modelKwargs: {
+//     seed: generateRandomSeed(),
+//   }
+// });
+
 const model = new ChatOpenAI({
-  modelName: "gpt-4-turbo-preview",
-  temperature: 0.8,
+  modelName: process.env.OPENAI_MODEL || "gpt-4-turbo-preview",
+  temperature: Number(process.env.OPENAI_TEMPERATURE) || 0.8,
   modelKwargs: {
     seed: generateRandomSeed(),
   }
