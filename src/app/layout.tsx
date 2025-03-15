@@ -4,6 +4,7 @@ import "./globals.css";
 import { PageContainer } from "@/components/PageContainer";
 import { ClientMusicPlayer } from "@/components/MusicPlayer/ClientMusicPlayer";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
+import { Analytics } from "@vercel/analytics/react"
 
 // Declare global window gtag
 declare global {
@@ -93,6 +94,7 @@ export default function RootLayout({
         </PageContainer>
         {/* Use the client component wrapper */}
         <ClientMusicPlayer />
+        <Analytics />
       </body>
     </html>
   );
