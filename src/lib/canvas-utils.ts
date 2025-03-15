@@ -16,8 +16,8 @@ interface WellnessContent {
 }
 
 const DEFAULT_CONFIG: CanvasConfig = {
-  width: 2400, // 4:3 aspect ratio at 3x resolution
-  height: 1800,
+  width: 1920, // 4:5 aspect ratio at 3x resolution
+  height: 2400,
   padding: 120, // Scaled padding
   lineHeight: 90, // Increased for better spacing between lines
   backgroundColor: '#ffffff',
