@@ -114,6 +114,31 @@ export default function SplendidResults() {
     }
   };
 
+  // Handle copy
+  const handleCopy = async () => {
+    const displayName = `${firstName}${lastName ? ` ${lastName[0]}` : ''}`;
+    const content = `Lumon Outie Query System Interface (OQSI)\n\nWellness Facts for ${displayName}:\n${pageState.facts.map(fact => `- ${fact}`).join('\n')}\n\nGet your Outie facts at: YourOutie.is`;
+    
+    try {
+      await navigator.clipboard.writeText(content);
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
+      // Fallback for browsers that don't support clipboard API
+      const textarea = document.createElement('textarea');
+      textarea.value = content;
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+      } catch (fallbackError) {
+        console.error('Fallback copy failed:', fallbackError);
+        throw new Error('Failed to copy to clipboard');
+      } finally {
+        document.body.removeChild(textarea);
+      }
+    }
+  };
+
   // Render error state
   if (pageState.error) {
     return (
@@ -170,6 +195,12 @@ export default function SplendidResults() {
         text={pageState.facts}
         onComplete={handleDownload}
         buttonText="Download Outie Facts"
+        secondaryAction={{
+          text: "Copy to Clipboard",
+          onClick: handleCopy,
+          variant: "secondary",
+          successText: "Praise Kier!"
+        }}
         animationConfig={{
           enabled: true,
           duration: 1000,

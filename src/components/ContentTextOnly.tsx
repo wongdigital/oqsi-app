@@ -8,6 +8,12 @@ interface ContentTextOnlyProps {
   text?: string[];
   onComplete?: () => void;
   buttonText?: string;
+  secondaryAction?: {
+    text: string;
+    onClick: () => Promise<void> | void;
+    variant?: 'default' | 'secondary' | 'outline';
+    successText?: string;
+  };
   animationConfig?: {
     enabled: boolean;
     duration: number;
@@ -21,6 +27,7 @@ export function ContentTextOnly({
   text = [],
   onComplete,
   buttonText,
+  secondaryAction,
   animationConfig = {
     enabled: true,
     duration: 1000,
@@ -35,6 +42,12 @@ export function ContentTextOnly({
     isAnimating: false
   });
 
+  // Add state for secondary action
+  const [secondaryActionState, setSecondaryActionState] = useState({
+    isLoading: false,
+    isSuccess: false
+  });
+
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
   const prevTextLengthRef = useRef(text.length);
   const isFirstRenderRef = useRef(true);
@@ -44,6 +57,19 @@ export function ContentTextOnly({
     timeoutsRef.current.forEach(clearTimeout);
     timeoutsRef.current = [];
   }, []);
+
+  // Reset success state after delay
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    if (secondaryActionState.isSuccess) {
+      timeout = setTimeout(() => {
+        setSecondaryActionState(prev => ({ ...prev, isSuccess: false }));
+      }, 2000);
+    }
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [secondaryActionState.isSuccess]);
 
   // Handle text content changes and initial animation
   useEffect(() => {
@@ -120,6 +146,61 @@ export function ContentTextOnly({
     });
   }, [animationConfig.enabled, text.length, cleanup, animationState.isAnimating]);
 
+  // Render buttons
+  const renderButtons = () => {
+    if (!onComplete && !secondaryAction) return null;
+
+    return (
+      <motion.div
+        key="buttons"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: animationState.showButton ? 1 : 0 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.5 }}
+        className="mt-8 flex gap-4 justify-center"
+      >
+        {secondaryAction && (
+          <div className="w-[180px]">
+            <Button
+              onClick={async (e) => {
+                e.stopPropagation();
+                setSecondaryActionState({ isLoading: true, isSuccess: false });
+                try {
+                  await secondaryAction.onClick();
+                  setSecondaryActionState({ isLoading: false, isSuccess: true });
+                } catch (error) {
+                  setSecondaryActionState({ isLoading: false, isSuccess: false });
+                }
+              }}
+              size="lg"
+              variant={secondaryAction.variant || 'secondary'}
+              disabled={secondaryActionState.isLoading}
+              className="w-full"
+            >
+              {secondaryActionState.isSuccess 
+                ? (secondaryAction.successText || 'Copied!') 
+                : secondaryAction.text}
+            </Button>
+          </div>
+        )}
+        {onComplete && buttonText && (
+          <div className="w-[180px]">
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                onComplete();
+              }}
+              size="lg"
+              className="w-full"
+            >
+              {buttonText}
+            </Button>
+          </div>
+        )}
+      </motion.div>
+    );
+  };
+
   return (
     <div 
       className={cn(
@@ -168,26 +249,7 @@ export function ContentTextOnly({
           ))}
         </div>
 
-        {onComplete && buttonText && (
-          <motion.div
-            key="button"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: animationState.showButton ? 1 : 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mt-8"
-          >
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                onComplete();
-              }}
-              size="lg"
-            >
-              {buttonText}
-            </Button>
-          </motion.div>
-        )}
+        {renderButtons()}
       </div>
     </div>
   );
