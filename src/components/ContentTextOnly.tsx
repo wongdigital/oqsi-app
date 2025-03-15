@@ -168,7 +168,7 @@ export function ContentTextOnly({
                 try {
                   await secondaryAction.onClick();
                   setSecondaryActionState({ isLoading: false, isSuccess: true });
-                } catch (error) {
+                } catch {
                   setSecondaryActionState({ isLoading: false, isSuccess: false });
                 }
               }}
