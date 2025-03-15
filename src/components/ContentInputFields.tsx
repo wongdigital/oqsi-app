@@ -163,7 +163,7 @@ export function ContentInputFields({
           
           {(errors[0] || errors[1]) && (
             <div className="text-red-500 text-sm mt-1">
-              Please fill out all fields. That's 10 points off.
+              Please fill out all fields. That&apos;s 10 points off.
             </div>
           )}
         </div>
