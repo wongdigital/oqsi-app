@@ -42,15 +42,24 @@ export function ContentInputFields({
   const validateFields = (): boolean => {
     const firstEmpty = firstValue.trim() === '';
     const secondEmpty = secondValue.trim() === '';
-    setErrors([firstEmpty, secondEmpty]);
-    return !firstEmpty && !secondEmpty;
+    const firstStartsWithSpace = firstValue.startsWith(' ');
+    const secondStartsWithSpace = secondValue.startsWith(' ');
+    
+    setErrors([
+      firstEmpty || firstStartsWithSpace,
+      secondEmpty || secondStartsWithSpace
+    ]);
+    return !firstEmpty && !secondEmpty && !firstStartsWithSpace && !secondStartsWithSpace;
   };
 
   const handleAdvance = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     
     if (validateFields()) {
-      onSubmit([firstValue, secondValue]);
+      onSubmit([firstValue.trim(), secondValue.trim()]);
     } else {
       // Focus the first empty field
       if (errors[0] && firstInputRef.current) {
@@ -69,21 +78,26 @@ export function ContentInputFields({
       setErrors([errors[0], false]);
     }
 
-    // If Enter is pressed in the first field, move focus to the second field
-    if (e.key === "Enter" && isFirstField && secondInputRef.current) {
+    // Only handle Enter key events
+    if (e.key === "Enter") {
       e.preventDefault();
-      
-      // Validate first field before moving to second
-      if (firstValue.trim() === '') {
-        setErrors([true, errors[1]]);
-      } else {
-        secondInputRef.current.focus();
+      e.stopPropagation();
+
+      // If Enter is pressed in the first field, validate and move focus to the second field
+      if (isFirstField) {
+        // Validate first field before moving to second
+        if (firstValue.trim() === '' || firstValue.startsWith(' ')) {
+          setErrors([true, errors[1]]);
+        } else if (secondInputRef.current) {
+          secondInputRef.current.focus();
+        }
+      } 
+      // If Enter is pressed in the second field, validate before advancing
+      else {
+        if (validateFields()) {
+          handleAdvance();
+        }
       }
-    } 
-    // If Enter is pressed in the second field, advance to the next screen
-    else if (e.key === "Enter" && !isFirstField) {
-      e.preventDefault();
-      handleAdvance();
     }
   };
 
@@ -91,7 +105,14 @@ export function ContentInputFields({
     <div className="flex flex-col h-full justify-center mt-6 md:mt-0">
       <h2 className="text-2xl font-bold tracking-tight mb-8">{question}</h2>
       
-      <form onSubmit={handleAdvance} className="space-y-6">
+      <form 
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleAdvance(e);
+        }} 
+        className="space-y-6"
+      >
         <div className="grid grid-cols-1 gap-4">
           <div className={`flex items-stretch border transition-all duration-200 ${
             errors[0] 
@@ -112,8 +133,9 @@ export function ContentInputFields({
                 type="text"
                 value={firstValue}
                 onChange={(e) => {
-                  setFirstValue(e.target.value);
-                  if (e.target.value.trim() !== '') {
+                  const newValue = e.target.value;
+                  setFirstValue(newValue);
+                  if (newValue.trim() !== '' && !newValue.startsWith(' ')) {
                     setErrors([false, errors[1]]);
                   }
                 }}
@@ -146,8 +168,9 @@ export function ContentInputFields({
                 type="text"
                 value={secondValue}
                 onChange={(e) => {
-                  setSecondValue(e.target.value);
-                  if (e.target.value.trim() !== '') {
+                  const newValue = e.target.value;
+                  setSecondValue(newValue);
+                  if (newValue.trim() !== '' && !newValue.startsWith(' ')) {
                     setErrors([errors[0], false]);
                   }
                 }}
@@ -163,7 +186,7 @@ export function ContentInputFields({
           
           {(errors[0] || errors[1]) && (
             <div className="text-red-500 text-sm mt-1">
-              Please fill out all fields. That&apos;s 10 points off.
+              Please fill out all fields without leading spaces. That&apos;s 20 points off.
             </div>
           )}
         </div>
