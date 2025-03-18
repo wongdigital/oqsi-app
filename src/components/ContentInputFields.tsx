@@ -186,7 +186,9 @@ export function ContentInputFields({
           
           {(errors[0] || errors[1]) && (
             <div className="text-red-500 text-sm mt-1">
-              Please fill out all fields without leading spaces. That&apos;s 20 points off.
+              {firstValue.trim() === '' || secondValue.trim() === ''
+                ? "Please fill out all fields. That's 10 points off."
+                : "Please remove leading spaces from your input. That's 20 points off."}
             </div>
           )}
         </div>
