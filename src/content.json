@@ -3,13 +3,13 @@
         "slides": [
             {
                 "order": 1,
-                "title": "What is your full name?",
+                "title": "What is your Innie’s full name?",
                 "type": "inputFields",
                 "options": ["First Name", "Last Name"]
             },
             {
                 "order": 2,
-                "title": "What is your innie’s primary work skill?",
+                "title": "What is your Innie’s primary work skill?",
                 "type": "multipleChoice",
                 "options": [
                     "Data analysis",
@@ -23,7 +23,7 @@
             },
             {
                 "order": 3,
-                "title": "What is your innie’s personality like?",
+                "title": "What is your Innie’s personality like?",
                 "type": "multipleChoice",
                 "options": [
                     "Quiet and focused",
@@ -37,7 +37,7 @@
             },
             {
                 "order": 4,
-                "title": "What is your innie’s office habbit?",
+                "title": "What is your Innie’s office habbit?",
                 "type": "multipleChoice",
                 "options": [
                     "Always on time",
@@ -51,7 +51,7 @@
             },
             {
                 "order": 5,
-                "title": "What is your innie’s worst fear?",
+                "title": "What is your Innie’s worst fear?",
                 "type": "multipleChoice",
                 "options": [
                     "Making mistakes",
@@ -65,7 +65,7 @@
             },
             {
                 "order": 6,
-                "title": "What is your innie’s favorite break room activity?",
+                "title": "What is your Innie’s favorite break room activity?",
                 "type": "multipleChoice",
                 "options": [
                     "Coffee drinking",
