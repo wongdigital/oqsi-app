@@ -26,8 +26,9 @@ export async function POST(request: Request) {
     for (const category of selectedCategories) {
       let attempts = 0;
       const maxAttempts = 3;
+      let factAdded = false;
       
-      while (attempts < maxAttempts) {
+      while (attempts < maxAttempts && !factAdded) {
         const factResult = await generateSingleFact(
           body.innie_traits,
           category,
@@ -43,14 +44,14 @@ export async function POST(request: Request) {
           facts.push(factResult.fact);
           factObjects.push(factResult);
           usedCategories.add(factResult.category);
-          break;
+          factAdded = true;
         }
 
         attempts++;
       }
 
       // If we couldn't generate a unique fact for this category, try a random fallback
-      if (facts.length !== usedCategories.size) {
+      if (!factAdded) {
         const unusedFallbacks = FALLBACK_FACTS.filter(f => !facts.includes(f));
         if (unusedFallbacks.length > 0) {
           const fallback = unusedFallbacks[Math.floor(Math.random() * unusedFallbacks.length)];
@@ -68,7 +69,10 @@ export async function POST(request: Request) {
       facts.push(fallback);
     }
 
-    return NextResponse.json({ facts } as WellnessFactResponse);
+    // Ensure we never return more than 5 facts
+    const finalFacts = facts.slice(0, 5);
+
+    return NextResponse.json({ facts: finalFacts } as WellnessFactResponse);
   } catch (error) {
     console.error("Error generating facts:", error);
     
