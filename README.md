@@ -54,13 +54,6 @@ The application will be available at [http://localhost:3000](http://localhost:30
 - `pnpm start` - Start production server
 - `pnpm lint` - Run ESLint
 
-## Security
-
-This application has been updated to address the React2Shell vulnerability (CVE-2025-55182):
-- Next.js updated to 16.0.7 (patched version)
-- React and React-dom updated to 19.2.1 (patched versions)
-- All sensitive API keys moved to server-side only (removed `NEXT_PUBLIC_` prefix)
-
 ## Project Structure
 
 - `/src/app` - Next.js application routes and pages
