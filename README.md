@@ -16,10 +16,10 @@ I hope you enjoy.
 
 ## Tech Stack
 
-OQSI is a modern web application built with Next.js 15, React 19, and TypeScript. Music is streamed from Bunny and the AI is gpt-4o-mini from OpenAI.
+OQSI is a modern web application built with Next.js 16, React 19, and TypeScript. Music is streamed from Bunny and the AI is gpt-4o-mini from OpenAI.
 
-- **Framework**: Next.js 15.2.2 with App Router
-- **UI**: React 19 with Tailwind CSS and shadcn/ui components
+- **Framework**: Next.js 16.0.7 with App Router
+- **UI**: React 19.2.1 with Tailwind CSS and shadcn/ui components
 - **Language**: TypeScript
 - **AI Integration**: LangChain with OpenAI
 - **State Management**: Zustand
@@ -36,11 +36,7 @@ OQSI is a modern web application built with Next.js 15, React 19, and TypeScript
    # or
    npm install
    ```
-3. Copy the environment variables:
-   ```bash
-   cp .env.example .env.local
-   ```
-4. Configure your environment variables in `.env.local`
+3. Create a `.env.local` file in the root directory with the required environment variables (see Environment Variables section below)
 
 5. Run the development server:
    ```bash
@@ -58,6 +54,13 @@ The application will be available at [http://localhost:3000](http://localhost:30
 - `pnpm start` - Start production server
 - `pnpm lint` - Run ESLint
 
+## Security
+
+This application has been updated to address the React2Shell vulnerability (CVE-2025-55182):
+- Next.js updated to 16.0.7 (patched version)
+- React and React-dom updated to 19.2.1 (patched versions)
+- All sensitive API keys moved to server-side only (removed `NEXT_PUBLIC_` prefix)
+
 ## Project Structure
 
 - `/src/app` - Next.js application routes and pages
@@ -68,7 +71,28 @@ The application will be available at [http://localhost:3000](http://localhost:30
 
 ## Environment Variables
 
-The application requires several environment variables to be set. Check `.env.example` for the required variables and their descriptions.
+The application requires several environment variables to be set in `.env.local`. 
+
+### Required Variables
+
+**OpenAI Configuration** (Server-side only - do NOT use `NEXT_PUBLIC_` prefix):
+- `OPENAI_API_KEY` - Your OpenAI API key
+- `OPENAI_MODEL` - Model name (default: "gpt-4o-mini")
+- `OPENAI_TEMPERATURE` - Temperature setting (default: 0.8)
+
+**Bunny.net Configuration** (Server-side only - do NOT use `NEXT_PUBLIC_` prefix):
+- `BUNNY_LIBRARY_ID` - Your Bunny.net video library ID
+- `BUNNY_PULL_ZONE` - Your Bunny.net pull zone identifier
+- `BUNNY_API_KEY` - Your Bunny.net API key
+
+**Google Analytics** (Client-side - uses `NEXT_PUBLIC_` prefix):
+- `NEXT_PUBLIC_GA_MEASUREMENT_ID` - Google Analytics measurement ID
+
+### Security Note
+
+⚠️ **Important**: API keys and sensitive credentials should NEVER use the `NEXT_PUBLIC_` prefix. Variables with `NEXT_PUBLIC_` are exposed in the client-side bundle and visible to anyone. Only use `NEXT_PUBLIC_` for values that are safe to expose publicly (like Google Analytics IDs).
+
+If you previously had `NEXT_PUBLIC_OPENAI_API_KEY` or other sensitive keys exposed, rotate them immediately in your respective service dashboards.
 
 ## License
 
