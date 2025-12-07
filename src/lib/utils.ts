@@ -102,12 +102,12 @@ IMPORTANT: Your fact MUST be completely different from any previously generated 
 
 // Azure OpenAI Configuration
 // const model = new AzureChatOpenAI({
-//   azureOpenAIApiKey: process.env.NEXT_PUBLIC_AZURE_OPENAI_API_KEY,
-//   azureOpenAIApiInstanceName: process.env.NEXT_PUBLIC_AZURE_OPENAI_API_INSTANCE_NAME,
-//   azureOpenAIApiDeploymentName: process.env.NEXT_PUBLIC_AZURE_OPENAI_API_DEPLOYMENT_NAME,
-//   azureOpenAIApiVersion: process.env.NEXT_PUBLIC_AZURE_OPENAI_API_VERSION || "2024-08-01-preview",
-//   modelName: process.env.NEXT_PUBLIC_AZURE_OPENAI_MODEL || "gpt-4o-mini",
-//   temperature: Number(process.env.NEXT_PUBLIC_AZURE_OPENAI_TEMPERATURE) || 0.8,
+//   azureOpenAIApiKey: process.env.AZURE_OPENAI_API_KEY,
+//   azureOpenAIApiInstanceName: process.env.AZURE_OPENAI_API_INSTANCE_NAME,
+//   azureOpenAIApiDeploymentName: process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME,
+//   azureOpenAIApiVersion: process.env.AZURE_OPENAI_API_VERSION || "2024-08-01-preview",
+//   modelName: process.env.AZURE_OPENAI_MODEL || "gpt-4o-mini",
+//   temperature: Number(process.env.AZURE_OPENAI_TEMPERATURE) || 0.8,
 //   modelKwargs: {
 //     seed: generateRandomSeed(),
 //   }
@@ -115,9 +115,9 @@ IMPORTANT: Your fact MUST be completely different from any previously generated 
 
 // OpenAI Configuration
 const model = new ChatOpenAI({
-  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-  modelName: process.env.NEXT_PUBLIC_OPENAI_MODEL || "gpt-4o-mini",
-  temperature: Number(process.env.NEXT_PUBLIC_OPENAI_TEMPERATURE) || 0.8,
+  apiKey: process.env.OPENAI_API_KEY,
+  modelName: process.env.OPENAI_MODEL || "gpt-4o-mini",
+  temperature: Number(process.env.OPENAI_TEMPERATURE) || 0.8,
   modelKwargs: {
     seed: generateRandomSeed(),
   }

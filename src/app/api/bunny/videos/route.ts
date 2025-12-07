@@ -2,10 +2,11 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const libraryId = process.env.NEXT_PUBLIC_BUNNY_LIBRARY_ID;
+    const libraryId = process.env.BUNNY_LIBRARY_ID;
     const apiKey = process.env.BUNNY_API_KEY;
+    const pullZone = process.env.BUNNY_PULL_ZONE;
 
-    if (!libraryId || !apiKey) {
+    if (!libraryId || !apiKey || !pullZone) {
       return NextResponse.json(
         { error: 'Missing required Bunny environment variables' },
         { status: 500 }
@@ -29,7 +30,8 @@ export async function GET() {
     }
 
     const data = await response.json();
-    return NextResponse.json(data);
+    // Include pull zone in response so client doesn't need NEXT_PUBLIC_ variable
+    return NextResponse.json({ ...data, pullZone });
   } catch (error) {
     console.error('Error fetching Bunny videos:', error);
     return NextResponse.json(
