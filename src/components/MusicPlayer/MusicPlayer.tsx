@@ -26,13 +26,6 @@ const DEMO_TRACKS: Track[] = [
 // Function to load tracks from Bunny.net
 async function loadTracksFromBunny(): Promise<Track[]> {
   try {
-    const libraryId = process.env.NEXT_PUBLIC_BUNNY_LIBRARY_ID;
-    const pullZone = process.env.NEXT_PUBLIC_BUNNY_PULL_ZONE;
-    
-    if (!libraryId || !pullZone) {
-      throw new Error('Missing required Bunny environment variables');
-    }
-
     const response = await fetch('/api/bunny/videos');
 
     if (!response.ok) {
@@ -41,6 +34,12 @@ async function loadTracksFromBunny(): Promise<Track[]> {
     }
 
     const data = await response.json();
+    
+    // Pull zone is now returned from the API to avoid exposing it client-side
+    const pullZone = data.pullZone;
+    if (!pullZone || !data.items) {
+      throw new Error('Invalid response from Bunny API');
+    }
     
     // Transform Bunny videos into tracks using HLS playlist URLs
     const tracks: Track[] = data.items.map((video: { guid: string; title: string }) => ({
