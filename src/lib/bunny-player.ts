@@ -132,6 +132,10 @@ class BunnyPlayerService {
       throw new Error('Player not initialized');
     }
 
+    if (!track.url) {
+      throw new Error('Track URL is required');
+    }
+
     // Clean up existing HLS instance if any
     if (this.hls) {
       this.hls.destroy();
@@ -162,10 +166,32 @@ class BunnyPlayerService {
         resolve();
       };
 
-      const errorHandler = () => {
-        this.hls?.off(Hls.Events.MANIFEST_LOADED, loadHandler);
-        this.hls?.off(Hls.Events.ERROR, errorHandler);
-        reject(new Error('Failed to load track'));
+      const errorHandler = (event: any, data: any) => {
+        // Only reject on fatal errors
+        if (data?.fatal) {
+          this.hls?.off(Hls.Events.MANIFEST_LOADED, loadHandler);
+          this.hls?.off(Hls.Events.ERROR, errorHandler);
+          
+          // Log detailed error information for debugging
+          console.error('HLS Fatal Error:', {
+            type: data?.type,
+            details: data?.details,
+            fatal: data?.fatal,
+            url: track.url,
+          });
+          
+          const errorMessage = data?.details 
+            ? `Failed to load track: ${data.details}`
+            : 'Failed to load track';
+          reject(new Error(errorMessage));
+        } else {
+          // Log non-fatal errors but don't reject
+          console.warn('HLS Non-fatal Error:', {
+            type: data?.type,
+            details: data?.details,
+            url: track.url,
+          });
+        }
       };
 
       this.hls.on(Hls.Events.MANIFEST_LOADED, loadHandler);
