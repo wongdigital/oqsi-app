@@ -106,7 +106,7 @@ IMPORTANT: Your fact MUST be completely different from any previously generated 
 //   azureOpenAIApiInstanceName: process.env.AZURE_OPENAI_API_INSTANCE_NAME,
 //   azureOpenAIApiDeploymentName: process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME,
 //   azureOpenAIApiVersion: process.env.AZURE_OPENAI_API_VERSION || "2024-08-01-preview",
-//   modelName: process.env.AZURE_OPENAI_MODEL || "gpt-4o-mini",
+//   modelName: process.env.AZURE_OPENAI_MODEL || "gpt-4.1-mini",
 //   temperature: Number(process.env.AZURE_OPENAI_TEMPERATURE) || 0.8,
 //   modelKwargs: {
 //     seed: generateRandomSeed(),
@@ -116,7 +116,7 @@ IMPORTANT: Your fact MUST be completely different from any previously generated 
 // OpenAI Configuration
 const model = new ChatOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  modelName: process.env.OPENAI_MODEL || "gpt-4o-mini",
+  modelName: process.env.OPENAI_MODEL || "gpt-4.1-mini",
   temperature: Number(process.env.OPENAI_TEMPERATURE) || 0.8,
   modelKwargs: {
     seed: generateRandomSeed(),
