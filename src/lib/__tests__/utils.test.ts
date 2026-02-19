@@ -1,9 +1,11 @@
 import { describe, it, expect } from "vitest";
+import { z } from "zod";
 import {
   generateRandomSeed,
   extractKeyThemes,
   calculateSimilarity,
 } from "../utils";
+import { FACT_CATEGORIES, FALLBACK_FACTS } from "../constants";
 
 describe("generateRandomSeed", () => {
   it("returns an integer", () => {
@@ -84,5 +86,103 @@ describe("calculateSimilarity", () => {
       "Your Outie loves dancing"
     );
     expect(sim).toBeCloseTo(0.6, 5);
+  });
+});
+
+// Mirrors the Zod schema defined in utils.ts for the structured output parser.
+// If a Zod upgrade breaks .startsWith() or .enum(), this test catches it
+// without needing an API key.
+const factSchema = z.object({
+  fact: z.string().startsWith("Your Outie"),
+  category: z.enum([
+    "moral_virtues",
+    "social_interactions",
+    "practical_skills",
+    "aesthetic_appreciation",
+    "physical_abilities",
+    "cultural_knowledge",
+    "quirky_habits",
+    "social_standing",
+    "emotional_traits",
+    "etiquette_behaviors",
+    "unusual_talents",
+    "possessions",
+    "animal_relations",
+    "achievements",
+    "future_predictions",
+  ]),
+});
+
+describe("fact Zod schema", () => {
+  it("accepts a valid fact", () => {
+    const result = factSchema.safeParse({
+      fact: "Your Outie can parallel park in less than 20 seconds.",
+      category: "practical_skills",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects a fact not starting with 'Your Outie'", () => {
+    const result = factSchema.safeParse({
+      fact: "The Outie enjoys long walks.",
+      category: "quirky_habits",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects an invalid category", () => {
+    const result = factSchema.safeParse({
+      fact: "Your Outie is kind.",
+      category: "invalid_category",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects missing fields", () => {
+    expect(factSchema.safeParse({ fact: "Your Outie is kind." }).success).toBe(
+      false
+    );
+    expect(
+      factSchema.safeParse({ category: "moral_virtues" }).success
+    ).toBe(false);
+    expect(factSchema.safeParse({}).success).toBe(false);
+  });
+
+  it("accepts every FACT_CATEGORIES value", () => {
+    for (const category of FACT_CATEGORIES) {
+      const result = factSchema.safeParse({
+        fact: "Your Outie is splendid.",
+        category,
+      });
+      expect(result.success, `category "${category}" should be valid`).toBe(
+        true
+      );
+    }
+  });
+});
+
+describe("constants integrity", () => {
+  it("FACT_CATEGORIES has 15 entries", () => {
+    expect(FACT_CATEGORIES).toHaveLength(15);
+  });
+
+  it("FACT_CATEGORIES contains no duplicates", () => {
+    expect(new Set(FACT_CATEGORIES).size).toBe(FACT_CATEGORIES.length);
+  });
+
+  it("FALLBACK_FACTS has 16 entries", () => {
+    expect(FALLBACK_FACTS).toHaveLength(16);
+  });
+
+  it('every FALLBACK_FACTS entry starts with "Your Outie"', () => {
+    for (const fact of FALLBACK_FACTS) {
+      expect(fact, `"${fact}" should start with "Your Outie"`).toMatch(
+        /^Your Outie/
+      );
+    }
+  });
+
+  it("FALLBACK_FACTS contains no duplicates", () => {
+    expect(new Set(FALLBACK_FACTS).size).toBe(FALLBACK_FACTS.length);
   });
 });
