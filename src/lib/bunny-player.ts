@@ -1,5 +1,5 @@
 import { Track } from './music-player-store';
-import Hls from 'hls.js';
+import Hls, { type ErrorData, type Events } from 'hls.js';
 
 class BunnyPlayerService {
   private playerId: string = 'bunny-player-container';
@@ -166,7 +166,7 @@ class BunnyPlayerService {
         resolve();
       };
 
-      const errorHandler = (event: any, data: any) => {
+      const errorHandler = (_event: Events.ERROR, data: ErrorData) => {
         // Only reject on fatal errors
         if (data?.fatal) {
           this.hls?.off(Hls.Events.MANIFEST_LOADED, loadHandler);
