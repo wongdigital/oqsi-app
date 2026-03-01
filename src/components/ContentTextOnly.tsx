@@ -79,6 +79,7 @@ export function ContentTextOnly({
       prevTextLengthRef.current = text.length;
       
       if (!animationConfig.enabled) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- Resetting state when text content changes
         setAnimationState({
           visibleLines: new Array(text.length).fill(true),
           showButton: true,
