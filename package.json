@@ -12,8 +12,8 @@
     "test:integration": "vitest run integration"
   },
   "dependencies": {
-    "@langchain/core": "^1.1.26",
-    "@langchain/openai": "^1.2.8",
+    "@langchain/core": "^1.2.1",
+    "@langchain/openai": "^1.5.3",
     "@radix-ui/react-slot": "^1.2.4",
     "@shadcn/ui": "^0.0.4",
     "@vercel/analytics": "^1.6.1",
