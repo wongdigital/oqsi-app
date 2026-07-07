@@ -9,11 +9,11 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:integration": "vitest run --testPathPattern=integration"
+    "test:integration": "vitest run integration"
   },
   "dependencies": {
-    "@langchain/core": "^1.1.26",
-    "@langchain/openai": "^1.2.8",
+    "@langchain/core": "^1.2.1",
+    "@langchain/openai": "^1.5.3",
     "@radix-ui/react-slot": "^1.2.4",
     "@shadcn/ui": "^0.0.4",
     "@vercel/analytics": "^1.6.1",
@@ -22,7 +22,7 @@
     "hls.js": "^1.6.15",
     "lucide-react": "^0.574.0",
     "motion": "^12.34.2",
-    "next": "^16.1.6",
+    "next": "^16.2.10",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "tailwind-merge": "^3.5.0",
@@ -36,14 +36,11 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "eslint": "^9.39.1",
-    "eslint-config-next": "^16.1.6",
+    "eslint-config-next": "^16.2.10",
     "tailwindcss": "^4.2.0",
+    "esbuild": "^0.28.1",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.18"
-  },
-  "pnpm": {
-    "overrides": {
-      "minimatch@<9.0.7": ">=9.0.7"
-    }
+    "vite": "^8.1.3",
+    "vitest": "^4.1.10"
   }
 }
