@@ -1,0 +1,6 @@
+allowBuilds:
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+overrides:
+  minimatch@<9.0.7: ">=9.0.7 <10.0.0"
