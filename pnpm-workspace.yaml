@@ -13,3 +13,4 @@ minimumReleaseAgeExclude:
   - vitest@4.1.10
 overrides:
   minimatch@<9.0.7: ">=9.0.7 <10.0.0"
+  postcss: ">=8.5.10 <9.0.0"
