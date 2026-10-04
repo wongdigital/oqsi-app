@@ -189,9 +189,8 @@ export const MusicPlayer: React.FC = () => {
     
     try {
       if (isPlaying) {
-        if (needsUserInteraction) {
-          setNeedsUserInteraction(true);
-        } else {
+        // Playback waits for the user-interaction prompt when autoplay was blocked
+        if (!needsUserInteraction) {
           bunnyPlayer.play();
         }
       } else {
