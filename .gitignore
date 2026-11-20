@@ -43,3 +43,6 @@ next-env.d.ts
 
 # project
 /original-codebase
+# Playwright artifacts
+/playwright-report/
+/test-results/

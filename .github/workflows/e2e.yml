@@ -1,0 +1,40 @@
+name: End-to-end
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  questionnaire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm build
+        env:
+          OPENAI_API_KEY: oqsi-test-placeholder
+          OPENAI_API_BASE: http://127.0.0.1:38472/v1
+          OPENAI_BASE_URL: http://127.0.0.1:38472/v1
+      - run: pnpm test:e2e
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: questionnaire-test-results
+          path: test-results/
+          if-no-files-found: ignore
