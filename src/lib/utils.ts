@@ -76,6 +76,8 @@ The fact should:
 
 Note on tone: State the behavior in a flat, matter-of-fact voice. Let the specific detail carry the humor.
 
+Vary what makes each fact specific compared with the previous facts. A setting, material, peculiar rule, or arrangement can be as distinctive as a number. Use a count or duration when it makes the joke funnier, but don't default to one.
+
 Example wellness facts from the show:
 - "Your Outie can parallel park in less than 20 seconds."
 - "Your Outie knows a beautiful rock from a plain one."
