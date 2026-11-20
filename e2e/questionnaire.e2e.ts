@@ -2,6 +2,8 @@ import { expect, test } from "@playwright/test";
 import { open } from "node:fs/promises";
 import questionnaire from "../src/content.json";
 import expectedFacts from "./facts.json";
+import answers from "./answers.json";
+import expectedNarrative from "./narrative.json";
 
 test("completes the questionnaire, shows validated facts and downloads them", async ({ page, baseURL }) => {
   // No live analytics, CDN audio, or other third-party browser requests.
@@ -25,11 +27,18 @@ test("completes the questionnaire, shows validated facts and downloads them", as
 
   for (const slide of questionnaire.content.slides.filter((slide) => slide.type === "multipleChoice")) {
     await expect(page.getByRole("heading", { name: slide.title, exact: true })).toBeVisible();
-    await page.getByRole("button", { name: `1 ${slide.options[0]}`, exact: true }).click();
+    const answer = answers[slide.selectionKey as keyof typeof answers];
+    const optionNumber = slide.options.indexOf(answer) + 1;
+    expect(optionNumber).toBeGreaterThan(1); // none of the defaults can accidentally satisfy the test
+    await page.getByRole("button", { name: `${optionNumber} ${answer}`, exact: true }).click();
   }
 
   const response = await responsePromise;
   expect(response.ok()).toBe(true);
+  expect(response.request().postDataJSON()).toEqual({
+    innie_traits: expectedNarrative,
+    raw_selections: answers,
+  });
   // Exact fixture facts guard against a green test if the API silently serves fallbacks.
   expect((await response.json()).facts).toEqual(expectedFacts);
   await expect(page).toHaveURL("/splendid");
@@ -52,4 +61,15 @@ test("completes the questionnaire, shows validated facts and downloads them", as
   } finally {
     await file.close();
   }
+});
+
+test("direct results navigation without answers returns home without requesting facts", async ({ page }) => {
+  const factRequests: string[] = [];
+  page.on("request", (request) => {
+    if (new URL(request.url()).pathname === "/api/generate-facts") factRequests.push(request.method());
+  });
+  await page.goto("/splendid");
+  await expect(page).toHaveURL("/");
+  await expect(page.getByRole("button", { name: "Get Started" })).toBeVisible();
+  expect(factRequests).toEqual([]);
 });

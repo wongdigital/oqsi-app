@@ -67,14 +67,16 @@ pnpm test:e2e
 
 Playwright starts the production build and a local fake model. The browser test
 walks through the questionnaire, verifies that the app's real API returns the
-fixture facts through LangChain and Zod, checks the rendered results, and confirms
-a PNG download. No live OpenAI credentials or CDN calls are needed. This checks
-the existing flow, not live-provider behavior or answer personalization.
+fixture facts through LangChain and Zod using the five selected answers, checks
+rendered results, and confirms a PNG download. It also checks that direct results
+links without answers return home. No live OpenAI credentials or CDN calls are
+needed; live-provider behavior is not covered.
 GitHub Actions runs it on pull requests and pushes to `main`.
 
 For environments without a browser, `pnpm test:e2e --grep "API returns"` runs
-the production-server HTTP check with the same model fixture. It does not cover
-the browser, rendering, or download.
+production-server HTTP checks with the same model fixture, including fallback
+facts when the model sends invalid structured output. It does not cover the
+browser, rendering, or download.
 
 ## Project Structure
 

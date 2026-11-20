@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ContentTextOnly } from '@/components/ContentTextOnly';
 import { ContentPageTemplate } from '@/components/ContentPageTemplate';
-import { InnieSelections, createNarrativeFromSelections } from '@/lib/api-types';
+import { createNarrativeFromSelections, hasCompleteSelections } from '@/lib/api-types';
 import { generateWellnessFacts } from '@/lib/api-client';
 import { useUserStore } from '@/lib/store';
 import { useRouter } from 'next/navigation';
@@ -11,7 +11,7 @@ import { generateWellnessPNG } from '@/lib/canvas-utils';
 
 export default function SplendidResults() {
   const router = useRouter();
-  const { firstName, lastName } = useUserStore();
+  const { firstName, lastName, selections } = useUserStore();
   const [pageState, setPageState] = useState({
     isLoading: true,
     isReady: false,
@@ -22,24 +22,9 @@ export default function SplendidResults() {
   // Add a ref to track if we've already fetched
   const hasFetchedRef = useRef(false);
 
-  // Redirect if no name is set
-  useEffect(() => {
-    if (!firstName && !lastName) {
-      router.replace('/');
-    }
-  }, [firstName, lastName, router]);
-
-  // Mock selections (in a real app, these would come from previous page state)
-  const mockSelections = useMemo<InnieSelections>(() => ({
-    primary_work_skill: "Data analysis",
-    work_personality: "Focused",
-    office_habit: "Takes meticulous notes",
-    worst_fear: "Making mistakes",
-    break_room_activity: "Reading quietly"
-  }), []);
-
   // Function to fetch facts
   const fetchFacts = useCallback(async () => {
+    if (!selections || !hasCompleteSelections(selections)) return;
     // Reset state
     setPageState(prev => ({
       ...prev,
@@ -49,10 +34,10 @@ export default function SplendidResults() {
     }));
     
     try {
-      const narrative = createNarrativeFromSelections(mockSelections);
+      const narrative = createNarrativeFromSelections(selections);
       const response = await generateWellnessFacts({
         innie_traits: narrative,
-        raw_selections: mockSelections
+        raw_selections: selections
       });
 
       // Update state with new facts and ready state
@@ -70,16 +55,21 @@ export default function SplendidResults() {
         error: 'Unable to retrieve your wellness facts at this time. Please check your internet connection and try again.'
       }));
     }
-  }, [mockSelections]);
+  }, [selections]);
 
   // Modify the useEffect to use the ref
   useEffect(() => {
+    if (!firstName || !lastName || !selections || !hasCompleteSelections(selections)) {
+      router.replace("/");
+      return;
+    }
+
     // Only fetch if we haven't already
     if (!hasFetchedRef.current) {
       hasFetchedRef.current = true;
       fetchFacts();
     }
-  }, [fetchFacts]);
+  }, [fetchFacts, firstName, lastName, router, selections]);
 
   // Handle download
   const handleDownload = async () => {

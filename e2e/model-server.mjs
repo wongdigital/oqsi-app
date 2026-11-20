@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import { readFileSync } from "node:fs";
 
 const facts = JSON.parse(readFileSync(new URL("./facts.json", import.meta.url), "utf8"));
+const expectedNarrative = JSON.parse(readFileSync(new URL("./narrative.json", import.meta.url), "utf8"));
 const json = (res, status, payload) =>
   res.writeHead(status, { "content-type": "application/json" }).end(JSON.stringify(payload));
 
@@ -22,6 +23,10 @@ createServer(async (req, res) => {
       return json(res, 400, { error: "Expected a wellness fact prompt" });
     }
 
+    if (userPrompt.includes("Creative thinking") && !userPrompt.includes(expectedNarrative)) {
+      return json(res, 400, { error: "Expected all five chosen traits in the model prompt" });
+    }
+    const invalidOutput = userPrompt.includes("Model unavailable for this test");
     const index = facts.findIndex((fact) => !userPrompt.includes(fact));
     if (index < 0) return json(res, 400, { error: "Fixture facts exhausted" });
     return json(res, 200, {
@@ -33,7 +38,7 @@ createServer(async (req, res) => {
         index: 0,
         message: {
           role: "assistant",
-          content: JSON.stringify({ fact: facts[index], category }),
+          content: invalidOutput ? "{}" : JSON.stringify({ fact: facts[index], category }),
         },
         finish_reason: "stop",
       }],
