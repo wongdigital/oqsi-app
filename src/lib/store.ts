@@ -5,8 +5,7 @@ interface UserStore {
   firstName: string;
   lastName: string;
   selections: InnieSelections | null;
-  setUserInfo: (firstName: string, lastName: string) => void;
-  setSelections: (selections: InnieSelections) => void;
+  completeQuestionnaire: (firstName: string, lastName: string, selections: InnieSelections) => void;
   reset: () => void;
 }
 
@@ -14,7 +13,6 @@ export const useUserStore = create<UserStore>((set) => ({
   firstName: '',
   lastName: '',
   selections: null,
-  setUserInfo: (firstName: string, lastName: string) => set({ firstName, lastName }),
-  setSelections: (selections: InnieSelections) => set({ selections }),
+  completeQuestionnaire: (firstName, lastName, selections) => set({ firstName, lastName, selections }),
   reset: () => set({ firstName: '', lastName: '', selections: null })
 })); 

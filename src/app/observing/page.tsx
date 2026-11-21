@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { ContentPageTemplate } from "@/components/ContentPageTemplate";
 import { ContentMultipleChoice, Option } from "@/components/ContentMultipleChoice";
 import { ContentInputFields } from "@/components/ContentInputFields";
@@ -8,15 +8,18 @@ import { ContentTextOnly } from "@/components/ContentTextOnly";
 import { SlideTransition } from "@/components/SlideTransition";
 import contentData from "@/content.json";
 import { useRouter } from "next/navigation";
-import { useUserStore } from '@/lib/store';
+import { useUserStore } from "@/lib/store";
+import { hasCompleteSelections, type InnieSelections } from "@/lib/api-types";
 
 // Define types for our content structure
-interface Slide {
+type Slide = {
   order: number;
   title: string;
-  type: "inputFields" | "multipleChoice" | "textOnly";
   options: string[];
-}
+} & (
+  | { type: "inputFields" | "textOnly" }
+  | { type: "multipleChoice"; selectionKey: keyof InnieSelections }
+);
 
 interface ContentData {
   content: {
@@ -32,8 +35,9 @@ export default function ObservingPage() {
   // State to track current slide index
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(-1); // Start at -1 for intro slide
   
-  // State to store user responses
-  const [responses, setResponses] = useState<Record<number, string | string[]>>({});
+  const [name, setName] = useState<[string, string]>(["", ""]);
+  const [selections, setSelections] = useState<Partial<InnieSelections>>({});
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   // State to track slide transition direction
   const [direction, setDirection] = useState<"left" | "right">("left");
@@ -55,145 +59,92 @@ export default function ObservingPage() {
   // Get the current slide (could be null if we're on the intro slide)
   const currentSlide = currentSlideIndex >= 0 ? slides[currentSlideIndex] : null;
   
-  // State for multiple choice selection
-  const [selectedOption, setSelectedOption] = useState<Option | null>(null);
-  
-  // State for loading
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  
-  // Handle completion and navigation
-  const handleCompletion = useCallback(async () => {
-    setIsLoading(true);
-    
-    try {
-      // Get the name from responses[1] which contains [firstName, lastName]
-      const nameResponse = responses[1] as [string, string];
-      const [firstName, lastName] = nameResponse || ['', ''];
-      
-      // Store user info in the global store
-      useUserStore.getState().setUserInfo(firstName, lastName);
-      
-      // Navigate to results page
-      router.push('/splendid');
-    } catch (error) {
-      console.error("Error submitting responses:", error);
-      setIsLoading(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const cancelAdvance = useCallback(() => {
+    if (advanceTimer.current !== null) {
+      clearTimeout(advanceTimer.current);
+      advanceTimer.current = null;
     }
-  }, [router, responses]);
-  
-  // Handle advancing to the next slide
-  const goToNextSlide = useCallback(() => {
+  }, []);
+
+  useEffect(() => cancelAdvance, [cancelAdvance]);
+
+  const advance = useCallback((
+    nextName: [string, string],
+    nextSelections: Partial<InnieSelections>
+  ) => {
     if (currentSlideIndex < slides.length - 1) {
       setDirection("left");
       setTransitionType(currentSlideIndex === -1 ? "fade" : "slide");
       setCurrentSlideIndex(currentSlideIndex + 1);
-      setSelectedOption(null);
-    } else {
-      // Set fade transition and reset direction for loading state
-      setDirection("left"); // Reset direction to prevent slide animation
-      setTransitionType("fade");
-      handleCompletion();
+      return;
     }
-  }, [currentSlideIndex, slides.length, handleCompletion]);
-  
-  // Handle going back to the previous slide
+
+    if (!nextName.every(Boolean) || !hasCompleteSelections(nextSelections)) return;
+
+    setIsLoading(true);
+    useUserStore.getState().completeQuestionnaire(...nextName, nextSelections);
+    router.push("/splendid");
+  }, [currentSlideIndex, router, slides.length]);
+
+  const goToNextSlide = useCallback(() => {
+    if (isLoading || currentSlide?.type === "inputFields") return;
+    if (currentSlide?.type === "multipleChoice" && !selections[currentSlide.selectionKey]) return;
+    cancelAdvance();
+    advance(name, selections);
+  }, [advance, cancelAdvance, currentSlide, isLoading, name, selections]);
+
   const goToPrevSlide = useCallback(() => {
-    if (currentSlideIndex > -1) { // Allow going back to intro slide
-      setDirection("right");
-      // Use fade transition when going back to intro slide, slide transition otherwise
-      setTransitionType(currentSlideIndex === 0 ? "fade" : "slide");
-      setCurrentSlideIndex(currentSlideIndex - 1);
-      setSelectedOption(null); // Reset selection for previous slide
-    }
-  }, [currentSlideIndex]);
-  
-  // Handle multiple choice selection
+    if (currentSlideIndex <= -1 || isLoading) return;
+    cancelAdvance();
+    setDirection("right");
+    setTransitionType(currentSlideIndex === 0 ? "fade" : "slide");
+    setCurrentSlideIndex(currentSlideIndex - 1);
+  }, [cancelAdvance, currentSlideIndex, isLoading]);
+
   const handleMultipleChoiceSelect = useCallback((option: Option) => {
-    if (!currentSlide) return;
-    
-    setSelectedOption(option);
-    setResponses(prev => ({
-      ...prev,
-      [currentSlide.order]: option.description
-    }));
-    
-    // Check if this is the last slide before starting the transition
-    if (currentSlideIndex === slides.length - 1) {
-      setTransitionType("fade");
-    }
-    
-    // Advance to next slide after a short delay
-    setTimeout(goToNextSlide, 500);
-  }, [currentSlide, goToNextSlide, currentSlideIndex, slides.length]);
-  
-  // Handle input fields submission
+    if (currentSlide?.type !== "multipleChoice" || isLoading) return;
+
+    // Pass the selected option to the timer so the last answer is not read
+    // from the render before setSelections took effect.
+    const nextSelections = { ...selections, [currentSlide.selectionKey]: option.description };
+    setSelections(nextSelections);
+    cancelAdvance();
+    advanceTimer.current = setTimeout(() => {
+      advanceTimer.current = null;
+      advance(name, nextSelections);
+    }, 500);
+  }, [advance, cancelAdvance, currentSlide, isLoading, name, selections]);
+
   const handleInputFieldsSubmit = useCallback((values: [string, string]) => {
-    if (!currentSlide) return;
-    
-    setResponses(prev => ({
-      ...prev,
-      [currentSlide.order]: values
-    }));
-    
-    // Check if this is the last slide before starting the transition
-    if (currentSlideIndex === slides.length - 1) {
-      setTransitionType("fade");
-    }
-    
-    goToNextSlide();
-  }, [currentSlide, goToNextSlide, currentSlideIndex, slides.length]);
-  
-  // Handle keyboard navigation for multiple choice
+    setName(values);
+    advance(values, selections);
+  }, [advance, selections]);
+
   useEffect(() => {
-    if (currentSlide?.type !== "multipleChoice") return;
-    
     const handleKeyPress = (event: KeyboardEvent) => {
-      const key = event.key;
-      
-      // Check if the key pressed is a number within the range of options
-      if (/^[1-9]$/.test(key)) {
-        const optionIndex = parseInt(key) - 1;
-        if (optionIndex < currentSlide.options.length) {
-          const option: Option = {
-            id: optionIndex + 1,
-            label: String(optionIndex + 1),
-            description: currentSlide.options[optionIndex]
-          };
-          handleMultipleChoiceSelect(option);
+      if (event.defaultPrevented || event.repeat || event.altKey || event.ctrlKey || event.metaKey) return;
+      if (event.target instanceof Element && event.target.closest("input, textarea, select, [contenteditable]")) return;
+
+      if (currentSlide?.type === "multipleChoice" && /^[1-9]$/.test(event.key)) {
+        const optionIndex = Number(event.key) - 1;
+        const description = currentSlide.options[optionIndex];
+        if (description) {
+          handleMultipleChoiceSelect({ id: optionIndex + 1, label: event.key, description });
         }
-      }
-      
-      // Remove arrow key navigation
-    };
-
-    // Add event listener
-    window.addEventListener("keydown", handleKeyPress);
-
-    // Clean up
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress);
-    };
-  }, [currentSlide, handleMultipleChoiceSelect]);
-  
-  // Add keyboard navigation
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.key === "ArrowRight" || event.key === "Enter") {
-        goToNextSlide();
       } else if (event.key === "ArrowLeft") {
         goToPrevSlide();
+      } else if (event.key === "ArrowRight" ||
+        (event.key === "Enter" && !(event.target instanceof Element && event.target.closest("a, button")))) {
+        goToNextSlide();
       }
     };
 
-    // Add event listener
     window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [currentSlide, goToNextSlide, goToPrevSlide, handleMultipleChoiceSelect]);
 
-    // Clean up
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress);
-    };
-  }, [goToNextSlide, goToPrevSlide]);
-  
   // Render the appropriate component based on slide type
   const renderSlide = () => {
     // If we're in loading state
@@ -255,6 +206,7 @@ export default function ObservingPage() {
             question={currentSlide.title}
             firstFieldLabel={currentSlide.options[0]}
             secondFieldLabel={currentSlide.options[1]}
+            initialValues={name}
             onSubmit={handleInputFieldsSubmit}
             buttonText="Next"
           />
@@ -271,7 +223,7 @@ export default function ObservingPage() {
           <ContentMultipleChoice
             question={currentSlide.title}
             options={options}
-            selectedOption={selectedOption}
+            selectedOption={options.find((option) => option.description === selections[currentSlide.selectionKey]) ?? null}
             onSelect={handleMultipleChoiceSelect}
           />
         );

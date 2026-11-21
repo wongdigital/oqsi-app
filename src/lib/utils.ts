@@ -62,19 +62,19 @@ const outputParser = StructuredOutputParser.fromZodSchema(
 const formatInstructions = outputParser.getFormatInstructions();
 
 const prompt = ChatPromptTemplate.fromMessages([
-  ["system", "You are an award-winning smart TV comedy writer. Write for the character Ms. Casey from the TV show Severance. Generate a wellness fact about someone's \"Outie\" (outside work self) that contrasts with their \"innie\" (work self)."],
+  ["system", "You are an award-winning smart TV comedy writer. Write for the character Ms. Casey from the TV show Severance. Write one deadpan, oddly specific wellness fact about someone's \"Outie\". Use their answers as quiet inspiration, without mentioning those answers, the Innie, or work."],
   ["human", `Generate a wellness fact about an Outie based on these Innie traits: {innieTraits}
 
 The fact should:
-1. Create an interesting contrast with their work traits
-2. Be oddly specific
+1. Let a supplied trait quietly inspire the fact. Do not mention the answers, the Innie, or work, or explain how the idea relates to the input.
+2. Describe one observable behavior with one oddly specific detail.
 3. Sound slightly absurd yet plausible
 4. Have the same clinical, corporate tone used in Severance
 5. Be a single sentence starting with "Your Outie"
 6. Keep it to about 15 words or less
 7. Focus on the category: {factCategory}
 
-Note on tone: The wellness facts should have a clinical, corporate delivery but describe something oddly specific or slightly absurd about the Outie's life outside work. The contrast between the formal delivery and the quirky content creates the distinctive Severance humor.
+Note on tone: State the behavior in a flat, matter-of-fact voice. Let the specific detail carry the humor.
 
 Example wellness facts from the show:
 - "Your Outie can parallel park in less than 20 seconds."
@@ -87,10 +87,10 @@ Example wellness facts from the show:
 - "Your Outie listens to music while shaving, but not while showering."
 - "Your Outie prefers two scoops of ice cream in a serving, but they must be the same flavor."
 
-Example contrasts between innie traits and Outie facts:
-- Innie: "Detail-oriented" → "Your Outie alphabetizes their spice rack but never cooks."
+Examples of using trait inspiration quietly:
+- Innie: "Detail-oriented" → "Your Outie alphabetizes the spices in every furnished apartment they rent."
 - Innie: "Reserved in meetings" → "Your Outie performs amateur stand-up comedy every third Thursday."
-- Innie: "Rule-follower" → "Your Outie has a collection of parking tickets they're oddly proud of."
+- Innie: "Rule-follower" → "Your Outie frames their parking tickets in identical walnut frames."
 
 Previously generated facts:
 {previousFacts}

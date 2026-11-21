@@ -15,6 +15,20 @@ export interface WellnessFactResponse {
     facts: string[];
 }
 
+const selectionKeys = [
+    "primary_work_skill",
+    "work_personality",
+    "office_habit",
+    "worst_fear",
+    "break_room_activity",
+] as const satisfies ReadonlyArray<keyof InnieSelections>;
+
+export function hasCompleteSelections(
+    selections: Partial<InnieSelections>,
+): selections is InnieSelections {
+    return selectionKeys.every((key) => Boolean(selections[key]?.trim()));
+}
+
 export function createNarrativeFromSelections(selections: InnieSelections): string {
     return `My innie's primary skill is ${selections.primary_work_skill}. ` +
            `They are ${selections.work_personality.toLowerCase()} at work. ` +
